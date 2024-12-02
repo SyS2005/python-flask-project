@@ -1,0 +1,88 @@
+{% extends 'base.html' %} {% block content %}
+
+<form method="POST" action="{{ url_for('logout') }}" class="logout-form">
+  <button type="submit" class="logout-btn">Вийти з кімнати</button>
+</form>
+
+<div class="message-box">
+  <h2>Кімната: {{ code }}</h2>
+  <!-- Список повідомлень -->
+  <div id="messages" class="messages">
+    {% for message in messages %}
+    <div class="message-item">
+      <span class="message-name">{{ message.name }}:</span>
+      <span class="message-text"> {{ message.message }}</span>
+      <span class="message-time">[{{ message.time }}]</span>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Форма для надсилання повідомлення -->
+  <form
+    id="messageForm"
+    method="POST"
+    action="{{ url_for('room') }}"
+    class="message-form"
+  >
+    <input
+      type="text"
+      id="messageInput"
+      placeholder="Введіть повідомлення..."
+      autocomplete="off"
+      required
+      class="input-message"
+    />
+    <button type="submit" class="send-btn">Надіслати</button>
+  </form>
+
+  {% if error %}
+  <div class="error">{{ error }}</div>
+  {% endif %}
+</div>
+
+<!-- Підключення до Socket.IO -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.min.js"></script>
+<script type="text/javascript">
+  let socket = io();
+
+  // Підключення до кімнати
+  socket.emit("join");
+
+  // Відправка повідомлення через Socket.IO
+  socket.on("message", function (data) {
+    const messageDiv = document.createElement("div");
+    messageDiv.classList.add("message-item");
+
+    const nameSpan = document.createElement("span");
+    nameSpan.classList.add("message-name");
+    nameSpan.textContent = data.name + ":";
+
+    const textSpan = document.createElement("span");
+    textSpan.classList.add("message-text");
+    textSpan.textContent = data.message;
+
+    const timeSpan = document.createElement("span");
+    timeSpan.classList.add("message-time");
+    timeSpan.textContent = `[${data.time}]`;
+
+    messageDiv.appendChild(nameSpan);
+    messageDiv.appendChild(textSpan);
+    messageDiv.appendChild(timeSpan);
+
+    document.getElementById("messages").appendChild(messageDiv);
+    messageDiv.scrollIntoView({ behavior: "smooth", block: "end" });
+  });
+
+  // Надсилання повідомлення
+  document.getElementById("messageForm").onsubmit = function (e) {
+    e.preventDefault(); // Перешкоджаємо звичайному надсиланню форми
+
+    let message = document.getElementById("messageInput").value;
+    if (message.trim()) {
+      socket.emit("message", { data: message });
+      document.getElementById("messageInput").value = ""; // Очищуємо поле
+    }
+  };
+</script>
+
+{% endblock %}

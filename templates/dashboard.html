@@ -1,0 +1,66 @@
+{% extends 'base.html' %} {% block content %}
+<header class="header">
+  <h1 class="dashboard-username">{{ username }}</h1>
+  <form method="POST" action="{{ url_for('logout_full') }}">
+    <button type="submit">Вийти з акаунта</button>
+  </form>
+</header>
+
+<main>
+  <h2>Приєднання до кімнати за кодом</h2>
+  <form method="POST" class="join_form">
+    <input
+      type="text"
+      name="code"
+      placeholder="Введіть код кімнати"
+      required
+      class="input_join_btn"
+    />
+    <button type="submit" name="join" class="join_btn">Приєднатися</button>
+  </form>
+
+  {% if error %}
+  <p style="color: red">{{ error }}</p>
+  {% endif %}
+
+  <h2>Створення нової кімнати</h2>
+  <div class="create-room">
+    <form method="POST">
+      <button type="submit" name="create">Створити нову кімнату</button>
+    </form>
+  </div>
+
+  <h2>Активні кімнати</h2>
+  {% if rooms %}
+  <div class="room-list-scroll">
+    <ul class="room-list">
+      {% for code, room in rooms.items() %}
+      <li class="room">
+        Код кімнати: {{ code }}
+        <span>
+          Кількість учасників: {{ room.members|length }} {% if room.owner ==
+          username %}
+          <strong>| Owner |</strong>
+          {% endif %}
+        </span>
+
+        <div class="room-list-btn">
+          <form method="POST" action="{{ url_for('join_room_from_list') }}">
+            <input type="hidden" name="code" value="{{ code }}" />
+            <button type="submit">Приєднатися до кімнати</button>
+          </form>
+          {% if room.owner == username %}
+          <form method="POST" action="{{ url_for('delete_room') }}">
+            <input type="hidden" name="code" value="{{ code }}" />
+            <button type="submit">Видалити кімнату</button>
+          </form>
+          {% endif %}
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% else %}
+  <p class="none-rooms">Немає активних кімнат.</p>
+  {% endif %} {% endblock %}
+</main>

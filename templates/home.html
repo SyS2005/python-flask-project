@@ -1,0 +1,39 @@
+{% extends 'base.html' %} {% block content %}
+<div class="login-container">
+  <form method="POST" class="auth-form">
+    <h3>Увійти або зареєструватися</h3>
+    {% if error %}
+    <p class="successful">{{ error }}</p>
+    {% endif %}
+    <div class="username">
+      <label for="username">Ім'я користувача:</label>
+      <input
+        type="text"
+        id="username"
+        name="username"
+        placeholder="Введіть ваше ім'я"
+        value="{{ username }}"
+        required
+      />
+    </div>
+    <div class="password">
+      <label for="password">Пароль:</label>
+      <input
+        type="password"
+        id="password"
+        name="password"
+        placeholder="Введіть пароль"
+        required
+      />
+    </div>
+    <div class="btns">
+      <button type="submit" name="action" value="login" class="login-btn">
+        Увійти
+      </button>
+      <button type="submit" name="action" value="register" class="register-btn">
+        Зареєструватися
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}
